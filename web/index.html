@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Checagem de Fatos · ao vivo</title>
+    <meta name="description" content="Muro ao vivo de checagens de fatos do Ray — stories de verificação em tempo real." />
+    <meta name="theme-color" content="#12102b" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9C%8D%3C/text%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <!-- Blobs de fundo (UI lúdica) -->
+    <div class="blobs" aria-hidden="true">
+      <span class="blob blob--a"></span>
+      <span class="blob blob--b"></span>
+      <span class="blob blob--c"></span>
+    </div>
+
+    <header class="hero">
+      <p class="hero__kicker">AO VIVO · feito com Ray</p>
+      <h1 class="hero__title">
+        <span class="hero__line">CHECAGEM</span>
+        <span class="hero__line hero__line--mark">DE FATOS</span>
+      </h1>
+      <p class="hero__sub">
+        O agente do <strong>Ray</strong> verifica as falas da reunião na web e cada
+        checagem vira um story aqui — <em>quente, quentinho</em>.
+      </p>
+      <div class="hero__status" data-status data-status="connecting">
+        <span class="hero__status-dot" aria-hidden="true"></span>
+        <span data-status-text>conectando…</span>
+      </div>
+    </header>
+
+    <main class="wall" data-wall>
+      <h2 class="wall__title" data-wall-title hidden></h2>
+      <section class="tray" data-tray aria-label="Stories de checagens"></section>
+    </main>
+
+    <section class="empty" data-empty hidden>
+      <div class="empty__sticker" aria-hidden="true">🔍</div>
+      <p class="empty__title">Nenhuma checagem por aqui… ainda!</p>
+      <p class="empty__sub">
+        Abra o Ray, ative o fact-check e clique em <strong>“Enviar checagem”</strong>
+        no overlay — o story aparece aqui na hora.
+      </p>
+    </section>
+
+    <!-- Viewer estilo Instagram Stories -->
+    <div class="viewer" data-viewer hidden>
+      <header class="viewer__bars" data-viewer-bars aria-hidden="true"></header>
+      <div class="viewer__head">
+        <span class="viewer__brand">
+          <span class="viewer__avatar" aria-hidden="true">🕵️</span>
+          Ray · Checagem
+        </span>
+        <button type="button" class="viewer__close" data-viewer-close aria-label="Fechar">✕</button>
+      </div>
+      <div class="viewer__stage">
+        <button type="button" class="viewer__tap viewer__tap--prev" data-viewer-prev aria-label="Anterior"></button>
+        <article class="story" data-viewer-card></article>
+        <button type="button" class="viewer__tap viewer__tap--next" data-viewer-next aria-label="Próxima"></button>
+      </div>
+      <footer class="viewer__foot" data-viewer-foot></footer>
+    </div>
+
+    <!-- Sheet de envio (Send do story) -->
+    <div class="sheet" data-sheet hidden>
+      <div class="sheet__backdrop" data-sheet-close></div>
+      <div class="sheet__panel" role="dialog" aria-label="Enviar story">
+        <span class="sheet__grip" aria-hidden="true"></span>
+        <p class="sheet__title">Enviar como…</p>
+        <button type="button" class="sheet__opt" data-send="instagram">
+          <span class="sheet__emoji" aria-hidden="true">📸</span>
+          <span>
+            <strong>Story do Instagram</strong>
+            <small>baixa a imagem 1080×1920 pronta pra postar</small>
+          </span>
+        </button>
+        <button type="button" class="sheet__opt" data-send="whatsapp">
+          <span class="sheet__emoji" aria-hidden="true">💬</span>
+          <span>
+            <strong>WhatsApp</strong>
+            <small>status ou mandar como link</small>
+          </span>
+        </button>
+        <button type="button" class="sheet__opt" data-send="link">
+          <span class="sheet__emoji" aria-hidden="true">🔗</span>
+          <span>
+            <strong>Copiar link</strong>
+            <small>permalink desta checagem</small>
+          </span>
+        </button>
+        <button type="button" class="sheet__cancel" data-sheet-close>Cancelar</button>
+      </div>
+    </div>
+
+    <div class="toast" data-toast hidden></div>
+
+    <footer class="foot">
+      <p>
+        dados em memória · nada é salvo em servidor ·
+        <a href="https://github.com/LMansoldo/ray-facts" target="_blank" rel="noreferrer">código</a>
+      </p>
+    </footer>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>

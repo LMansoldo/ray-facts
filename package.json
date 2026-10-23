@@ -1,0 +1,15 @@
+{
+  "name": "ray-facts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Muro ao vivo de checagens de fatos do Ray — stories em tempo real (SSE).",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server/src/index.js",
+    "dev": "FACTS_USER=ray FACTS_PASS=ray node --watch server/src/index.js",
+    "test": "node --test server/test/*.test.js"
+  }
+}
