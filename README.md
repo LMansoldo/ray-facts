@@ -58,8 +58,20 @@ guarda tudo **em memória** (anel de 100 — o muro é efêmero como story).
 
 ## Deploy
 
-Qualquer host que rode Node 18+: `npm start` respeita `PORT`/`HOST`.
-Render/Railway/Fly: build `—`, start `npm start`, env `FACTS_USER`/`FACTS_PASS`.
+Qualquer VPS Linux (Ubuntu/Debian/Oracle) com systemd, uma linha pela SSH
+(instala Node 20, nginx com proxy SSE-safe, unit systemd e libera firewall):
+
+```bash
+ssh root@SEU_IP 'DOMAIN=debatejusto.site bash -s' < deploy/vps.sh
+```
+
+- `DOMAIN` é opcional — sem ele o site sobe em `http://SEU_IP`; com ele, o
+  script configura `server_name` e roda `certbot --nginx` (HTTPS automático,
+  desde que o DNS do domínio já aponte para o IP da VPS).
+- Re-executar atualiza o código e mantém a senha gerada (fica em
+  `/etc/ray-facts.env`, chmod 600).
+- Ao final o script imprime a URL, o endpoint `/facts` e as credenciais para
+  colar no Ray (Configurações › Overlay › SSE — Envio de checagem).
 
 ## Integrar com o Ray
 
