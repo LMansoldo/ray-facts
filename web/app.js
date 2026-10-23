@@ -331,14 +331,17 @@
 
     // cabeçalho: avatar + marca
     const avY = 130;
-    ctx.fillStyle = "#5e5ce6";
+    const avGrad = ctx.createLinearGradient(66, avY - 44, 154, avY + 44);
+    avGrad.addColorStop(0, "#5e5ce6");
+    avGrad.addColorStop(1, "#0a84ff");
+    ctx.fillStyle = avGrad;
     ctx.beginPath();
     ctx.arc(110, avY, 44, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = "#fff";
-    ctx.font = "800 22px -apple-system, 'SF Pro Display', 'Trebuchet MS', sans-serif";
+    ctx.font = "800 26px -apple-system, 'SF Pro Display', 'Trebuchet MS', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("RAY", 110, avY + 8);
+    ctx.fillText("CF", 110, avY + 9);
     ctx.textAlign = "left";
     ctx.fillStyle = "#f5f5f7";
     ctx.font = "600 40px -apple-system, 'SF Pro Display', 'Trebuchet MS', sans-serif";

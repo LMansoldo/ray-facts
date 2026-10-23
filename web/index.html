@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Checagem de Fatos · ao vivo</title>
-    <meta name="description" content="Muro ao vivo de checagens de fatos do Ray — stories de verificação em tempo real." />
+    <meta name="description" content="Checagem de fatos ao vivo do debate Lula × Flávio Bolsonaro — cada afirmação verificada vira um story em tempo real." />
     <meta name="theme-color" content="#050507" />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🕵%EF%B8%8F%3C/text%3E%3C/svg%3E" />
     <link rel="stylesheet" href="/styles.css" />
@@ -27,32 +27,23 @@
         <span class="hero__line hero__line--shine">DE FATOS</span>
       </h1>
       <p class="hero__sub reveal">
-        O agente do Ray verifica as falas da conversa na web — e cada verificação
-        vira um story aqui, em tempo real.
+        Debate <strong>Lula × Flávio Bolsonaro</strong> — cada afirmação verificada
+        na web na hora vira um story aqui.
+      </p>
+      <p class="hero__when reveal">
+        <span class="hero__when-day">HOJE · 23/10</span>
+        <span class="hero__when-time">21:20</span>
       </p>
     </header>
 
     <main class="wall">
-      <!-- Empty state (sem dados): teaser editorial + como funciona -->
+      <!-- Empty state (sem dados): teaser editorial -->
       <section class="empty" data-empty>
         <p class="empty__mark reveal">EM BREVE DISPONÍVEL</p>
         <p class="empty__sub reveal">
-          Aguardando a primeira checagem — o muro acende assim que o Ray enviar.
+          As checagens começam às <strong>21:20</strong> — o muro acende no
+          primeiro fato verificado.
         </p>
-        <ol class="empty__steps reveal">
-          <li class="step">
-            <span class="step__num">01</span>
-            <span class="step__label">Reunião ou live no Ray</span>
-          </li>
-          <li class="step">
-            <span class="step__num">02</span>
-            <span class="step__label">O agente verifica os fatos na web</span>
-          </li>
-          <li class="step">
-            <span class="step__num">03</span>
-            <span class="step__label">“Enviar checagem” no overlay</span>
-          </li>
-        </ol>
       </section>
 
       <section class="grid-wrap" data-grid-wrap hidden>
@@ -66,7 +57,7 @@
       <header class="viewer__bars" data-viewer-bars aria-hidden="true"></header>
       <div class="viewer__head">
         <span class="viewer__brand">
-          <span class="viewer__avatar" aria-hidden="true">RAY</span>
+          <span class="viewer__avatar" aria-hidden="true">CF</span>
           <span>Checagem de Fatos<br /><small data-viewer-time></small></span>
         </span>
         <button type="button" class="viewer__close" data-viewer-close aria-label="Fechar">✕</button>
@@ -113,10 +104,7 @@
     <div class="toast" data-toast hidden></div>
 
     <footer class="foot">
-      <p>
-        dados em memória · nada é salvo em servidor ·
-        <a href="https://github.com/LMansoldo/ray-facts" target="_blank" rel="noreferrer">código</a>
-      </p>
+      <p>dados em memória · nada é salvo em servidor</p>
     </footer>
 
     <script src="/app.js" defer></script>

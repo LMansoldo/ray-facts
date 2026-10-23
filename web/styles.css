@@ -173,6 +173,38 @@ body {
   font-weight: 400;
 }
 
+.hero__sub strong { color: var(--ink); font-weight: 600; }
+
+/* Horário do debate — pill de vidro com o horário em destaque */
+.hero__when {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.9rem;
+  margin: 2rem auto 0;
+  padding: 0.7rem 1.6rem;
+  border-radius: 999px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-rim-soft);
+  backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+  font-variant-numeric: tabular-nums;
+}
+
+.hero__when-day {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+.hero__when-time {
+  font-size: clamp(1.6rem, 3.4vw, 2.2rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+
 /* ── Empty state ─────────────────────────────────────────────────────────── */
 
 .empty {
@@ -214,48 +246,7 @@ body {
   line-height: 1.55;
 }
 
-.empty__steps {
-  list-style: none;
-  display: grid;
-  gap: 0.9rem;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
-  padding: 0;
-  margin: 3rem auto 0;
-  max-width: 52rem;
-}
-
-.step {
-  display: flex;
-  align-items: center;
-  gap: 0.9rem;
-  padding: 1.15rem 1.3rem;
-  text-align: left;
-  border-radius: 22px;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-rim-soft);
-  backdrop-filter: blur(var(--glass-blur)) saturate(160%);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(160%);
-  transition: transform 0.5s var(--ease), border-color 0.5s var(--ease), background 0.5s var(--ease);
-}
-
-.step:hover {
-  transform: translateY(-3px);
-  border-color: var(--glass-rim);
-  background: var(--glass-bg-strong);
-}
-
-.step__num {
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--ink-faint);
-  padding: 0.35rem 0.6rem;
-  border: 1px solid var(--glass-rim-soft);
-  border-radius: 999px;
-  flex-shrink: 0;
-}
-
-.step__label { font-size: 0.95rem; font-weight: 500; }
+.empty__sub strong { color: var(--ink); font-weight: 600; }
 
 /* ── Muro (grid fluido) ──────────────────────────────────────────────────── */
 
