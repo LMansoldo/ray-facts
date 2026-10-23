@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<style>
+  /* Card "Checagem de Fatos" — mesmo design do muro debatejusto.site:
+     black premium + vidro, glow ambiente na cor do veredito, selos pill.
+     Convenção do app: 1rem = 10px. Sem JavaScript — placeholders {{var}}. */
+  html { font-size: 62.5%; }
+  html, body { margin: 0; padding: 0; background: transparent; }
+
+  .fact {
+    /* Acento padrão (inconclusivo); :has() abaixo troca pelo veredito. */
+    --accent: #ffd60a;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    min-height: 12rem;
+    padding: 1.6rem 1.6rem 1.3rem;
+    overflow: hidden;
+    position: relative;
+    color: #f5f5f7;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+    font-size: 1.3rem;
+    line-height: 1.55;
+    letter-spacing: -0.01em;
+    cursor: default;
+    background: #050507;
+    border: 0.1rem solid rgba(255, 255, 255, 0.12);
+    border-radius: 2.4rem;
+  }
+
+  /* Glow ambiente do veredito + fio de luz no topo do vidro. */
+  .fact::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(120% 55% at 50% -8%, var(--accent), transparent 68%);
+    opacity: 0.17;
+    pointer-events: none;
+  }
+  .fact::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 8%; right: 8%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+    pointer-events: none;
+  }
+
+  /* Veredito manda no acento: contraevidência vence (última regra). */
+  .fact:has(.ray-verdict__chip--true) { --accent: #30d158; }
+  .fact:has(.ray-verdict__chip--uncertain) { --accent: #ffd60a; }
+  .fact:has(.ray-verdict__chip--false) { --accent: #ff453a; }
+
+  .fact > * { position: relative; z-index: 1; }
+
+  /* ── Cabeçalho: marca + chip do contexto ─────────────────────────────── */
+  .fact-top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+  .fact-brand {
+    font-size: 1.05rem; font-weight: 700; letter-spacing: 0.22em;
+    text-transform: uppercase; color: rgba(245, 245, 247, 0.55); white-space: nowrap;
+  }
+  .fact-chip {
+    max-width: 52%;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    padding: 0.4rem 1rem; border-radius: 999px;
+    font-size: 0.98rem; font-weight: 600; letter-spacing: 0.08em;
+    color: rgba(245, 245, 247, 0.72);
+    background: rgba(255, 255, 255, 0.055);
+    border: 0.1rem solid rgba(255, 255, 255, 0.12);
+  }
+
+  /* ── Eles disseram ───────────────────────────────────────────────────── */
+  .fact-label {
+    margin: 0;
+    font-size: 0.92rem; font-weight: 600; letter-spacing: 0.2em;
+    text-transform: uppercase; color: rgba(245, 245, 247, 0.38);
+  }
+  .fact-quote {
+    margin: 0.55rem 0 0;
+    font-size: 1.6rem; line-height: 1.38; font-weight: 600;
+    letter-spacing: -0.01em; color: #f5f5f7;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  }
+
+  /* ── Diga isso: corpo rolável — alvo do auto-scroll (data-ray-body). ─── */
+  .fact-say { flex: 1; min-height: 3.4rem; margin-top: 1.4rem; display: flex; flex-direction: column; }
+  .fact-body {
+    flex: 1; min-height: 0; margin-top: 0.8rem;
+    overflow-y: auto; padding-right: 0.4rem;
+    font-size: 1.38rem; line-height: 1.55; color: rgba(245, 245, 247, 0.92);
+    min-width: 0; overflow-wrap: anywhere;
+  }
+
+  /* Markdown básico (bodyHtml vem do renderizador do app). */
+  .fact-body p { margin: 0 0 0.6em; overflow-wrap: anywhere; }
+  .fact-body p:last-child { margin-bottom: 0; }
+  .fact-body ul, .fact-body ol { margin: 0 0 0.6em; padding-left: 1.6em; }
+  .fact-body li { margin: 0.2em 0; }
+  .fact-body strong { color: #ffffff; font-weight: 600; }
+  .fact-body code {
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 4px; padding: 0.1em 0.35em; overflow-wrap: anywhere;
+  }
+  .fact-body pre {
+    max-width: 100%; margin: 0 0 0.6em; padding: 0.7em 0.9em;
+    background: rgba(255, 255, 255, 0.05);
+    border: 0.1rem solid rgba(255, 255, 255, 0.09);
+    border-radius: 0.9rem; overflow-x: auto;
+    white-space: pre-wrap; overflow-wrap: anywhere; font-size: 0.92em;
+  }
+  .fact-body pre code { background: transparent; padding: 0; }
+  .fact-body blockquote {
+    margin: 0.6em 0; padding: 0.2em 0 0.2em 1em;
+    border-left: 0.25rem solid color-mix(in srgb, var(--accent) 55%, transparent);
+    color: rgba(245, 245, 247, 0.58);
+  }
+  .fact-body a { color: rgba(245, 245, 247, 0.85); text-decoration: none; border-bottom: 0.1rem solid rgba(255, 255, 255, 0.25); }
+
+  /* ── Cards de veredito (classes emitidas por verdict.ts) — selo pill ─── */
+  .fact-body .ray-verdict {
+    display: flex; flex-direction: column; gap: 0.55em;
+    margin: 0.7em 0; padding: 1em 1.1em;
+    max-width: 100%; min-width: 0; overflow-wrap: anywhere;
+    border: 0.1rem solid rgba(255, 255, 255, 0.1);
+    border-radius: 1.4rem;
+    background: rgba(255, 255, 255, 0.05);
+  }
+  .fact-body .ray-verdict__top { display: flex; align-items: center; gap: 0.7em; flex-wrap: wrap; min-width: 0; }
+  .fact-body .ray-verdict__chip {
+    display: inline-flex; align-items: center;
+    padding: 0.25em 0.85em; border-radius: 999px;
+    font-size: 0.78em; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+    white-space: nowrap; background: rgba(255, 255, 255, 0.04);
+  }
+  .fact-body .ray-verdict__chip--true      { color: #30d158; border: 0.1rem solid rgba(48, 209, 88, 0.45); }
+  .fact-body .ray-verdict__chip--false     { color: #ff453a; border: 0.1rem solid rgba(255, 69, 58, 0.45); }
+  .fact-body .ray-verdict__chip--uncertain { color: #ffd60a; border: 0.1rem solid rgba(255, 214, 10, 0.4); }
+  .fact-body .ray-verdict__confidence { display: inline-flex; align-items: center; gap: 0.35em; font-size: 0.82em; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(245, 245, 247, 0.5); }
+  .fact-body .ray-verdict__dot { width: 0.5em; height: 0.5em; border-radius: 50%; background: rgba(255, 255, 255, 0.14); }
+  .fact-body .ray-verdict__dot--on { background: rgba(245, 245, 247, 0.85); }
+  .fact-body .ray-verdict__claim { margin: 0; font-weight: 600; color: #f5f5f7; line-height: 1.4; }
+  .fact-body .ray-verdict__why { margin: 0; color: rgba(245, 245, 247, 0.58); line-height: 1.5; }
+  .fact-body .ray-verdict__sources { display: flex; flex-wrap: wrap; gap: 0.4em; margin: 0; padding: 0; list-style: none; min-width: 0; }
+  .fact-body .ray-verdict__source {
+    display: inline-flex; align-items: center;
+    padding: 0.25em 0.8em; max-width: 100%; overflow-wrap: anywhere;
+    border-radius: 999px; font-size: 0.85em;
+    color: rgba(245, 245, 247, 0.82);
+    background: rgba(255, 255, 255, 0.055);
+    border: 0.1rem solid rgba(255, 255, 255, 0.12);
+    text-decoration: none;
+  }
+
+  /* Cursor de streaming: visível SOMENTE com status="streaming". */
+  .fact-cursor { display: none; }
+  [data-ray-overlay-status="streaming"] .fact-cursor {
+    display: inline-block; width: 2px; height: 1em;
+    margin-top: -0.2em; background: #f5f5f7;
+    animation: fact-blink 1s step-end infinite;
+  }
+  @keyframes fact-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    [data-ray-overlay-status="streaming"] .fact-cursor { animation: none; }
+  }
+
+  /* Caixa de erro: visível SOMENTE com status="error". */
+  .fact-error { display: none; }
+  [data-ray-overlay-status="error"] .fact-error {
+    display: block; margin: 0.8rem 0 0; padding: 0.8rem 1rem;
+    font-size: 1.2rem; color: #ff453a;
+    border: 0.1rem solid rgba(255, 69, 58, 0.3);
+    border-radius: 1rem; background: rgba(255, 69, 58, 0.08);
+  }
+
+  /* ── Botão de share (link pro muro ao vivo) ──────────────────────────── */
+  .fact-share {
+    display: block;
+    margin-top: 0.9rem;
+    padding: 0.85rem 0;
+    text-align: center;
+    font-size: 1.25rem; font-weight: 600;
+    color: #f5f5f7; text-decoration: none;
+    background: rgba(255, 255, 255, 0.09);
+    border: 0.1rem solid rgba(255, 255, 255, 0.12);
+    border-radius: 1.6rem;
+    transition: background 0.3s ease;
+  }
+  .fact-share:hover { background: rgba(255, 255, 255, 0.14); }
+
+  /* ── Rodapé: fio de luz + AO VIVO ────────────────────────────────────── */
+  .fact-foot {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 1.1rem; padding-top: 1rem;
+    border-top: 0.1rem solid rgba(255, 255, 255, 0.09);
+    font-size: 0.95rem; font-weight: 600; letter-spacing: 0.18em;
+    text-transform: uppercase; color: rgba(245, 245, 247, 0.4);
+  }
+  .fact-foot__live { display: inline-flex; align-items: center; gap: 0.5rem; }
+  .fact-foot__dot {
+    width: 0.7rem; height: 0.7rem; border-radius: 50%;
+    background: var(--accent); box-shadow: 0 0 0.7rem var(--accent);
+  }
+  [data-ray-overlay-status="streaming"] .fact-foot__dot { animation: fact-pulse 1.4s ease-in-out infinite; }
+  [data-ray-overlay-status="error"] .fact-foot__dot { background: #ff453a; box-shadow: 0 0 0.7rem #ff453a; }
+  @keyframes fact-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.35; transform: scale(0.8); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-ray-overlay-status="streaming"] .fact-foot__dot { animation: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="fact" data-ray-overlay-status="{{status}}">
+    <header class="fact-top">
+      <span class="fact-brand">Checagem de Fatos</span>
+      <span class="fact-chip">{{contextLabel}}</span>
+    </header>
+
+    <section style="margin-top:1.4rem;">
+      <h2 class="fact-label">Eles disseram</h2>
+      <p class="fact-quote">“{{theySaid}}”</p>
+    </section>
+
+    <section class="fact-say">
+      <h2 class="fact-label">Diga isso</h2>
+      <div class="fact-body" data-ray-body>{{bodyHtml}}</div>
+      <span class="fact-cursor" aria-hidden="true"></span>
+    </section>
+
+    <footer class="fact-foot">
+      <span>Ao vivo</span>
+      <span class="fact-foot__live"><span class="fact-foot__dot" aria-hidden="true"></span> debatejusto.site</span>
+    </footer>
+
+    <a class="fact-share" href="https://debatejusto.site" target="_blank" rel="noreferrer">Compartilhar ↗</a>
+
+    <p class="fact-error" role="alert">{{error}}</p>
+  </div>
+</body>
+</html>
