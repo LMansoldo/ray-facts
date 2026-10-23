@@ -1,0 +1,27 @@
+# Produção na VPS Hostinger: anexa o ray-facts à rede "web" do Caddy
+# compartilhado — o Caddy resolve `rayfacts:3000` por DNS de container.
+# Uso: docker compose -p ray-facts up -d --build
+#
+# Caddyfile (em /opt/caddy/Caddyfile):
+#   debatejusto.site, www.debatejusto.site {
+#       reverse_proxy rayfacts:3000
+#   }
+services:
+  rayfacts:
+    build: .
+    container_name: rayfacts
+    restart: unless-stopped
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3000
+      FACTS_USER: ${FACTS_USER:-ray}
+      FACTS_PASS: ${FACTS_PASS:-ray}
+    env_file:
+      - path: .env
+        required: false
+    networks: [webnet]
+
+networks:
+  webnet:
+    external: true
+    name: web
