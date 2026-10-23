@@ -13,11 +13,13 @@
     status: $("[data-status]"),
     statusText: $("[data-status-text]"),
     tray: $("[data-tray]"),
+    gridWrap: $("[data-grid-wrap]"),
     wallTitle: $("[data-wall-title]"),
     empty: $("[data-empty]"),
     viewer: $("[data-viewer]"),
     viewerBars: $("[data-viewer-bars]"),
     viewerCard: $("[data-viewer-card]"),
+    viewerTime: $("[data-viewer-time]"),
     viewerFoot: $("[data-viewer-foot]"),
     viewerClose: $("[data-viewer-close]"),
     viewerPrev: $("[data-viewer-prev]"),
@@ -114,12 +116,13 @@
 
   function renderAll() {
     el.tray.innerHTML = "";
-    for (const fact of facts) {
+    for (const [i, fact] of facts.entries()) {
       const card = document.createElement("button");
       card.type = "button";
       card.className = "tray__card story";
       card.dataset.open = fact.id;
       card.setAttribute("aria-label", `Abrir checagem: ${fact.quote || fact.checagem}`);
+      card.style.animationDelay = `${Math.min(i * 60, 480)}ms`;
       card.innerHTML = storyInner(fact, true);
       card.addEventListener("click", (event) => {
         if (event.target.closest("[data-send-open]")) return;
@@ -127,10 +130,14 @@
       });
       el.tray.appendChild(card);
     }
-    el.empty.hidden = facts.length > 0;
-    el.wallTitle.hidden = facts.length === 0;
-    el.wallTitle.textContent =
-      facts.length === 1 ? "1 checagem" : `${facts.length} checagens`;
+    const has = facts.length > 0;
+    el.empty.hidden = has;
+    el.gridWrap.hidden = !has;
+    el.wallTitle.textContent = has
+      ? facts.length === 1
+        ? "1 checagem"
+        : `${facts.length} checagens`
+      : "";
   }
 
   function prependFact(fact, isNew) {
@@ -147,10 +154,10 @@
     });
     el.tray.prepend(card);
     el.empty.hidden = true;
-    el.wallTitle.hidden = false;
+    el.gridWrap.hidden = false;
     el.wallTitle.textContent =
       facts.length === 1 ? "1 checagem" : `${facts.length} checagens`;
-    if (isNew) toast("Nova checagem chegou! 🔥");
+    if (isNew) toast("Nova checagem chegou!");
   }
 
   // ── Viewer estilo Instagram ───────────────────────────────────────────────
@@ -170,6 +177,12 @@
     el.viewerCard.classList.add("story");
     el.viewerCard.innerHTML = storyInner(fact, false);
     el.viewerFoot.innerHTML = "";
+    if (el.viewerTime) {
+      const when = fact.receivedAt ? new Date(fact.receivedAt) : null;
+      el.viewerTime.textContent = when
+        ? `${String(when.getDate()).padStart(2, "0")}/${String(when.getMonth() + 1).padStart(2, "0")} · ${String(when.getHours()).padStart(2, "0")}:${String(when.getMinutes()).padStart(2, "0")}`
+        : "ao vivo";
+    }
     history.replaceState(null, "", `#${fact.id}`);
   }
 
@@ -273,7 +286,7 @@
     );
   }
 
-  /** Story 1080×1920 desenhado no canvas (sem dependências). */
+  /** Story 1080×1920 desenhado no canvas (sem dependências) — black premium. */
   function drawStoryCanvas(fact) {
     const W = 1080;
     const H = 1920;
@@ -282,17 +295,20 @@
     canvas.height = H;
     const ctx = canvas.getContext("2d");
 
-    const palettes = {
-      TRUE: ["#0c4a34", "#0f7a52", "#3ddc97"],
-      FALSE: ["#571227", "#a01f3f", "#ff5c7f"],
-      UNCERTAIN: ["#3f2f07", "#8a6410", "#ffb020"],
+    const accents = {
+      TRUE: "#30d158",
+      FALSE: "#ff453a",
+      UNCERTAIN: "#ffd60a",
     };
-    const [c1, c2, c3] = palettes[fact.isTrue] ?? palettes.UNCERTAIN;
-    const grad = ctx.createLinearGradient(0, 0, W, H);
-    grad.addColorStop(0, c1);
-    grad.addColorStop(0.55, c2);
-    grad.addColorStop(1, c3);
-    ctx.fillStyle = grad;
+    const accent = accents[fact.isTrue] ?? accents.UNCERTAIN;
+
+    // fundo black premium + brilho ambiente do veredito no topo
+    ctx.fillStyle = "#050507";
+    ctx.fillRect(0, 0, W, H);
+    const glow = ctx.createRadialGradient(W / 2, -200, 80, W / 2, -200, 1100);
+    glow.addColorStop(0, accent + "44");
+    glow.addColorStop(1, "#05050700");
+    ctx.fillStyle = glow;
     ctx.fillRect(0, 0, W, H);
 
     const wrap = (text, font, maxWidth) => {
@@ -313,63 +329,111 @@
       return lines;
     };
 
-    // cabeçalho
-    ctx.fillStyle = "rgba(255,255,255,0.9)";
-    ctx.font = "700 44px 'Trebuchet MS', sans-serif";
-    ctx.fillText("🕵️ RAY · CHECAGEM DE FATOS", 80, 150);
+    // cabeçalho: avatar + marca
+    const avY = 130;
+    ctx.fillStyle = "#5e5ce6";
+    ctx.beginPath();
+    ctx.arc(110, avY, 44, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#fff";
+    ctx.font = "800 22px -apple-system, 'SF Pro Display', 'Trebuchet MS', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("RAY", 110, avY + 8);
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#f5f5f7";
+    ctx.font = "600 40px -apple-system, 'SF Pro Display', 'Trebuchet MS', sans-serif";
+    ctx.fillText("Checagem de Fatos", 180, avY - 4);
+    ctx.fillStyle = "rgba(245,245,247,0.45)";
+    ctx.font = "400 30px -apple-system, 'SF Pro Display', 'Trebuchet MS', sans-serif";
+    const when = new Date();
+    ctx.fillText(
+      `${String(when.getDate()).padStart(2, "0")}/${String(when.getMonth() + 1).padStart(2, "0")} · ao vivo`,
+      180,
+      avY + 42,
+    );
 
     // quote
-    ctx.fillStyle = "#fff";
-    const quoteLines = wrap(`❝ ${stripMarks(fact.quote || fact.checagem)} ❞`, "700 64px 'Trebuchet MS', sans-serif", W - 160);
-    let y = 380;
+    ctx.fillStyle = "#f5f5f7";
+    const quoteLines = wrap(
+      `“${stripMarks(fact.quote || fact.checagem)}”`,
+      "600 64px -apple-system, 'SF Pro Display', 'Trebuchet MS', sans-serif",
+      W - 160,
+    );
+    let y = 420;
     for (const line of quoteLines.slice(0, 8)) {
       ctx.fillText(line, 80, y);
-      y += 78;
+      y += 80;
     }
 
-    // carimbo do veredito
+    // selo do veredito (pill glass)
     ctx.save();
-    ctx.translate(80, y + 90);
-    ctx.rotate(-0.06);
-    ctx.strokeStyle = "rgba(255,255,255,0.95)";
-    ctx.lineWidth = 8;
-    ctx.font = "900 72px 'Trebuchet MS', sans-serif";
-    const label = (VERDICT_LABEL[fact.isTrue] ?? "INCONCLUSIVO").toUpperCase();
+    ctx.translate(80, y + 60);
+    ctx.font = "700 44px -apple-system, 'SF Pro Display', 'Trebuchet MS', sans-serif";
+    const label = (VERDICT_LABEL[fact.isTrue] ?? "Inconclusivo").toUpperCase();
     const w = ctx.measureText(label).width;
-    ctx.strokeRect(0, -64, w + 60, 100);
-    ctx.fillStyle = "rgba(255,255,255,0.95)";
-    ctx.fillText(label, 30, 8);
+    ctx.fillStyle = "rgba(255,255,255,0.05)";
+    ctx.strokeStyle = accent + "88";
+    ctx.lineWidth = 2;
+    roundRect(ctx, 0, -56, w + 76, 88, 44);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = accent;
+    ctx.fillText(label, 38, 10);
     ctx.restore();
 
-    // checagem
-    ctx.fillStyle = "rgba(255,255,255,0.92)";
-    y += 280;
-    const bodyLines = wrap(stripMarks(fact.checagem), "400 44px 'Trebuchet MS', sans-serif", W - 160);
-    for (const line of bodyLines.slice(0, 12)) {
-      ctx.fillText(line, 80, y);
-      y += 60;
+    // painel de vidro com a checagem
+    y += 220;
+    const bodyLines = wrap(
+      stripMarks(fact.checagem),
+      "400 44px -apple-system, 'SF Pro Display', 'Trebuchet MS', sans-serif",
+      W - 240,
+    );
+    const panelH = Math.min(bodyLines.length, 10) * 62 + 90;
+    ctx.fillStyle = "rgba(255,255,255,0.05)";
+    ctx.strokeStyle = "rgba(255,255,255,0.12)";
+    ctx.lineWidth = 2;
+    roundRect(ctx, 80, y, W - 160, panelH, 36);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = "rgba(245,245,247,0.85)";
+    let by = y + 80;
+    for (const line of bodyLines.slice(0, 10)) {
+      ctx.fillText(line, 130, by);
+      by += 62;
     }
+    y += panelH;
 
     // fontes + termos
-    ctx.fillStyle = "rgba(255,255,255,0.75)";
-    ctx.font = "600 36px 'Trebuchet MS', sans-serif";
+    ctx.fillStyle = "rgba(245,245,247,0.5)";
+    ctx.font = "500 34px -apple-system, 'SF Pro Display', 'Trebuchet MS', sans-serif";
     if (fact.resultadoBusca.length) {
-      ctx.fillText(`🔗 ${fact.resultadoBusca.length} fonte(s) consultada(s)`, 80, y + 60);
+      ctx.fillText(`🔗 ${fact.resultadoBusca.length} fonte(s) consultada(s)`, 80, y + 90);
     }
     if (fact.termosBusca.length) {
-      ctx.fillText(`🔎 ${fact.termosBusca.map((t) => `“${t}”`).join(" · ")}`, 80, y + 130);
+      ctx.fillText(`🔎 ${fact.termosBusca.map((t) => `“${t}”`).join(" · ")}`, 80, y + 160);
     }
 
     // rodapé
-    ctx.fillStyle = "rgba(0,0,0,0.3)";
-    ctx.fillRect(0, H - 190, W, 190);
-    ctx.fillStyle = "#fff";
-    ctx.font = "800 40px 'Trebuchet MS', sans-serif";
-    ctx.fillText("CHECAGEM DE FATOS · AO VIVO", 80, H - 100);
-    ctx.font = "400 32px 'Trebuchet MS', sans-serif";
-    ctx.fillText(`checagemdefatos · ${location.host}`, 80, H - 50);
+    ctx.fillStyle = "rgba(255,255,255,0.1)";
+    ctx.fillRect(0, H - 170, W, 1);
+    ctx.fillStyle = "rgba(245,245,247,0.85)";
+    ctx.font = "600 38px -apple-system, 'SF Pro Display', 'Trebuchet MS', sans-serif";
+    ctx.fillText("CHECAGEM DE FATOS · AO VIVO", 80, H - 90);
+    ctx.fillStyle = "rgba(245,245,247,0.4)";
+    ctx.font = "400 30px -apple-system, 'SF Pro Display', 'Trebuchet MS', sans-serif";
+    ctx.fillText(`checagens em tempo real · ${location.host}`, 80, H - 40);
 
     return canvas;
+  }
+
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
   }
 
   function downloadCanvas(canvas, filename) {
@@ -461,4 +525,9 @@
   }
 
   connect();
+
+  // Entrada fluida: stagger dos elementos do hero/empty.
+  document.querySelectorAll(".reveal").forEach((node, i) => {
+    node.style.setProperty("--d", `${Math.min(i * 110, 550)}ms`);
+  });
 })();
